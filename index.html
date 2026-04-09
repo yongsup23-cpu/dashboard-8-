@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>관성적 업무 개선 관리 대시보드</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:'Malgun Gothic','맑은 고딕',Arial,sans-serif;font-size:13px;color:#1a1a1a;background:#f0f2f5}
+.top-bar{background:#1a3a5c;color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}.top-bar h1{margin:0;font-size:18px}.top-sub{font-size:11px;color:#9ec2df;margin-top:4px}.top-right{font-size:11px;color:#cde0ef;text-align:right}
+.wrap{max-width:1600px;margin:0 auto;padding:18px}
+.toolbar,.fbar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}.toolbar-note{margin-left:auto;font-size:11px;color:#64748b}
+.btn,.fb,select{font-family:inherit}.btn,.fb{font-size:12px;padding:8px 12px;border-radius:7px;border:1px solid #cbd5e1;background:#fff;color:#334155;cursor:pointer}.btn.primary,.fb.active-main{background:#1a3a5c;color:#fff;border-color:#1a3a5c}.fb.active-sub{background:#166534;color:#fff;border-color:#166534}.fb.active-amber{background:#92400e;color:#fff;border-color:#92400e}
+.sum-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.card{background:#fff;border:1px solid #dde3ea;border-radius:10px;padding:14px 18px}.card.click{cursor:pointer}.card-label{font-size:11px;color:#6b7280;margin-bottom:5px}.card-value{font-size:28px;font-weight:700}.blue{color:#1a5fa8}.green{color:#166534}.amber{color:#92400e}.prog-bg{height:6px;background:#e5e7eb;border-radius:4px;margin-top:8px}.prog-fg{height:6px;background:#1a5fa8;border-radius:4px}.card.active{outline:2px solid #1a5fa8}
+.section{background:#fff;border:1px solid #dde3ea;border-radius:12px;padding:18px 20px;margin-bottom:18px}.sec-title{font-size:14px;font-weight:700;color:#1a3a5c;margin-bottom:14px;padding-bottom:10px;border-bottom:2px solid #e0e7f0}.sec-sub{font-size:11px;color:#9ca3af;margin-left:8px}
+.table-wrap{overflow:auto}.ov-tbl,.dt-tbl{width:100%;border-collapse:collapse}.ov-tbl{min-width:900px;table-layout:fixed}.dt-tbl{min-width:1210px}.ov-tbl th,.ov-tbl td,.dt-tbl th,.dt-tbl td{border:1px solid #dde3ea;padding:8px 10px;text-align:center;vertical-align:middle}.ov-tbl th,.dt-tbl th{background:#1a3a5c;color:#fff;font-size:12px;white-space:nowrap}.ov-tbl .row-label{background:#f0f4f9;color:#1a3a5c;text-align:left;font-weight:700}.ov-tbl td.clickable{cursor:pointer}.ov-tbl td.active{outline:2px solid #1a5fa8;outline-offset:-2px;background:#bfdbfe !important}
+.dt-tbl tr:nth-child(even) td{background:#f9fafb}.dt-tbl tr.done-row td{background:#f0faf4}.left{text-align:left}.small{font-size:11px;color:#64748b}.badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700}.done{background:#dcfce7;color:#14532d}.pending{background:#fef3c7;color:#78350f}.dept{font-size:10px;font-weight:700;border-radius:999px;padding:2px 8px;display:inline-block}.d-건축{background:#dbeafe;color:#1e3a8a}.d-토목플랜트{background:#ede9fe;color:#4c1d95}.d-기전{background:#fce7f3;color:#831843}.d-주택{background:#fef9c3;color:#713f12}.d-구매품질환경{background:#d1fae5;color:#064e3b}.d-DI{background:#fee2e2;color:#7f1d1d}.d-안전{background:#ffedd5;color:#7c2d12}.d-AS{background:#e0f2fe;color:#0c4a6e}
+select{font-size:11px;padding:5px 7px;border:1px solid #cbd5e1;border-radius:6px;background:#fff}input[type=checkbox]{width:16px;height:16px;cursor:pointer}
+.file-actions{display:flex;flex-direction:column;gap:4px;align-items:flex-start}.file-row{display:flex;gap:4px;flex-wrap:wrap}.file-btn{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:6px;border:1px solid #cbd5e1;background:#fff;color:#334155;text-decoration:none;font-size:11px;cursor:pointer}.file-name{font-size:10px;color:#166534;max-width:120px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.no-file{font-size:10px;color:#a3a3a3}
+.progress-summary{display:flex;flex-direction:column;align-items:flex-start;gap:6px}.progress-meta{font-size:11px;color:#475569}.progress-chip{display:inline-block;padding:3px 8px;border-radius:999px;background:#eef2ff;color:#4338ca;font-size:10px;font-weight:700}.hint{font-size:11px;color:#9ca3af;margin-top:8px}
+.modal-backdrop{position:fixed;inset:0;background:rgba(15,23,42,.45);display:none;align-items:center;justify-content:center;z-index:2000;padding:16px}.modal-backdrop.show{display:flex}.modal{background:#fff;border-radius:16px;box-shadow:0 20px 60px rgba(15,23,42,.25);width:min(1120px,calc(100vw - 24px));max-height:calc(100vh - 32px);overflow:auto;padding:20px}.modal.sm{width:min(360px,calc(100vw - 24px))}.modal h3{margin:0 0 10px 0;color:#1a3a5c}.modal p{margin:0 0 12px 0;color:#64748b;font-size:12px;line-height:1.5}.modal-actions{display:flex;justify-content:flex-end;gap:8px;margin-top:14px}.msg{min-height:18px;color:#b91c1c;font-size:12px;margin-top:8px}#progress-backdrop{z-index:2000}#pw-backdrop{z-index:3000}.progress-rate{color:#dc2626;font-weight:800}
+.pw-input{width:100%;font-size:14px;padding:10px 12px;border:1px solid #cbd5e1;border-radius:8px}
+.progress-grid{display:grid;grid-template-columns:repeat(9,minmax(110px,1fr));gap:10px}.month-card{border:1px solid #dbe2ea;border-radius:12px;padding:10px;background:#fafbfc}.month-title{font-weight:700;color:#1a3a5c;margin-bottom:8px;text-align:center}.month-card textarea{width:100%;min-height:88px;resize:vertical;border:1px solid #cbd5e1;border-radius:8px;padding:8px;font-family:inherit;font-size:12px;color:#dc2626}.month-card textarea::placeholder{color:#9ca3af}.month-check{display:flex;justify-content:center;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:#334155}.modal-sub{font-size:12px;color:#64748b;margin-bottom:12px}
+@media (max-width:1100px){.sum-grid{grid-template-columns:1fr 1fr}.progress-grid{grid-template-columns:repeat(3,minmax(110px,1fr))}}@media (max-width:700px){.sum-grid{grid-template-columns:1fr}.progress-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <div>
+    <h1>관성적 업무 개선 관리 대시보드</h1>
+    <div class="top-sub">개선기한, 진행상황, 완료여부를 서버에 저장하는 버전</div>
+  </div>
+  <div class="top-right">
+    <div id="today-lbl"></div>
+    <div id="save-status">서버 연결 확인 중...</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="toolbar">
+    <button class="btn primary" onclick="fetchState(true)">서버 새로고침</button>
+    <button class="btn" onclick="resetAll()">전체 초기화</button>
+    <div class="toolbar-note">수정/진행상황 저장 시마다 관리자 비밀번호 입력</div>
+  </div>
+
+  <div class="sum-grid">
+    <div class="card click active" id="mc-all" onclick="clickCard('all')"><div class="card-label">전체 개선 항목</div><div class="card-value blue" id="s-total">-</div></div>
+    <div class="card click" id="mc-done" onclick="clickCard('done')"><div class="card-label">반영 완료</div><div class="card-value green" id="s-done">-</div></div>
+    <div class="card click" id="mc-pending" onclick="clickCard('pending')"><div class="card-label">미반영</div><div class="card-value amber" id="s-undone">-</div></div>
+    <div class="card"><div class="card-label">전체 반영률</div><div class="card-value blue" id="s-rate">0%</div><div class="prog-bg"><div class="prog-fg" id="prog-fg" style="width:0%"></div></div></div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title">부문별 총괄표<span class="sec-sub">부문명 또는 숫자 클릭 시 하단 상세 목록 필터링</span></div>
+    <div class="table-wrap">
+      <table class="ov-tbl">
+        <colgroup>
+          <col style="width:120px">
+          <col span="8" style="width:calc((100% - 240px)/8)">
+          <col style="width:120px">
+        </colgroup>
+        <thead><tr><th>구분</th><th onclick="clickDept('건축')">건축</th><th onclick="clickDept('토목플랜트')">토목플랜트</th><th onclick="clickDept('기전')">기전</th><th onclick="clickDept('주택')">주택</th><th onclick="clickDept('구매품질환경')">구매품질환경</th><th onclick="clickDept('DI')">DI</th><th onclick="clickDept('안전')">안전</th><th onclick="clickDept('AS')">AS</th><th>합계</th></tr></thead>
+        <tbody id="ov-body"></tbody>
+      </table>
+    </div>
+    <div class="hint">* 상세 목록은 발의부문별 + 개선기한 순서로 자동 정렬됩니다. 개선기한을 바꾸면 순서도 즉시 바뀝니다.</div>
+  </div>
+
+  <div class="section">
+    <div class="sec-title">개선 항목 상세 관리<span class="sec-sub" id="detail-sub"></span></div>
+    <div class="fbar">
+      <span>부문:</span>
+      <button class="fb active-main" id="fb-all" onclick="fDept('all')">전체</button>
+      <button class="fb" id="fb-건축" onclick="fDept('건축')">건축</button>
+      <button class="fb" id="fb-토목플랜트" onclick="fDept('토목플랜트')">토목플랜트</button>
+      <button class="fb" id="fb-기전" onclick="fDept('기전')">기전</button>
+      <button class="fb" id="fb-주택" onclick="fDept('주택')">주택</button>
+      <button class="fb" id="fb-구매품질환경" onclick="fDept('구매품질환경')">구매품질환경</button>
+      <button class="fb" id="fb-DI" onclick="fDept('DI')">DI</button>
+      <button class="fb" id="fb-안전" onclick="fDept('안전')">안전</button>
+      <button class="fb" id="fb-AS" onclick="fDept('AS')">AS</button>
+      <span style="margin-left:12px">상태:</span>
+      <button class="fb active-sub" id="fsb-all" onclick="fStatus('all')">전체</button>
+      <button class="fb" id="fsb-done" onclick="fStatus('done')">완료만</button>
+      <button class="fb" id="fsb-pending" onclick="fStatus('pending')">미완료만</button>
+      <span style="margin-left:12px">개선기한:</span>
+      <button class="fb active-amber" id="fqb-all" onclick="fQuarter('all')">전체</button>
+      <button class="fb" id="fqb-2분기" onclick="fQuarter('2분기')">2분기</button>
+      <button class="fb" id="fqb-3분기" onclick="fQuarter('3분기')">3분기</button>
+      <button class="fb" id="fqb-4분기" onclick="fQuarter('4분기')">4분기</button>
+      <button class="fb" id="fqb-하반기" onclick="fQuarter('하반기')">하반기</button>
+      <button class="fb" id="fqb-제외" onclick="fQuarter('제외')">제외</button>
+    </div>
+    <div class="table-wrap">
+      <table class="dt-tbl">
+        <thead>
+          <tr>
+            <th style="width:50px">NO</th>
+            <th style="width:90px">발의부문</th>
+            <th style="min-width:260px">개선 의견</th>
+            <th style="width:130px">관련부서</th>
+            <th style="width:82px">개선기한</th>
+            <th style="width:140px">진행상황</th>
+            <th style="width:80px">진행률</th>
+            <th style="width:76px">완료여부</th>
+            <th style="width:150px">구분자</th>
+          </tr>
+        </thead>
+        <tbody id="dt-body"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+
+<div class="modal-backdrop" id="progress-backdrop">
+  <div class="modal">
+    <h3>진행상황 입력</h3>
+    <div class="modal-sub" id="progress-title"></div>
+    <div class="progress-grid" id="progress-grid"></div>
+    <div class="modal-actions">
+      <button class="btn" id="progress-cancel">닫기</button>
+      <button class="btn primary" id="progress-save">저장</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DEPTS = ['건축','토목플랜트','기전','주택','구매품질환경','DI','안전','AS'];
+const QUARTERS = ['1분기','2분기','3분기','4분기','하반기','제외'];
+const FILTER_QUARTERS = ['2분기','3분기','4분기','하반기','제외'];
+const MONTHS = ['4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+let state = [];
+let curDept='all', curStatus='all', curQuarter='all';
+let activeCard='all';
+let activeOvCell=null;
+let progressRowId = null;
+
+let progressEditorOpen = false;
+let isSavingProgress = false;
+
+function requestPassword(){
+  const value = window.prompt('관리자 비밀번호를 입력하세요.');
+  return Promise.resolve(value && value.trim() ? value.trim() : null);
+}
+
+function escapeHtml(v){ return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
+function setSaveStatus(msg){ document.getElementById('save-status').textContent = msg; }
+function getAuthHeaders(password, extra={}){ const h={...extra}; if(password) h['X-Password']=password; return h; }
+function quarterRank(q){ return QUARTERS.indexOf(q) >=0 ? QUARTERS.indexOf(q) : 99; }
+function deptRank(d){ return DEPTS.indexOf(d) >=0 ? DEPTS.indexOf(d) : 99; }
+
+async function fetchState(manual=false){
+  try{
+    if(manual) setSaveStatus('서버에서 최신 데이터 불러오는 중...');
+    const res = await fetch('/api/state',{cache:'no-store'});
+    const data = await res.json();
+    state = data.rows || [];
+    renderAll();
+    setSaveStatus('서버와 동기화됨 · ' + new Date().toLocaleTimeString('ko-KR'));
+  }catch(e){ console.error(e); setSaveStatus('서버 연결 실패'); }
+}
+setInterval(()=>{ if(!progressEditorOpen && !isSavingProgress) fetchState(false); }, 10000);
+
+function calcStats(){ const total=state.length; const done=state.filter(r=>r.done).length; return {total, done, undone: total-done, rate: total? Math.round(done/total*100):0}; }
+function calcDeptStats(){ const m={}; DEPTS.forEach(d=>m[d]={total:0,done:0}); state.forEach(r=>{ if(m[r.dept]){m[r.dept].total++; if(r.done)m[r.dept].done++;} }); return m; }
+function renderSummary(){ const s=calcStats(); document.getElementById('s-total').textContent=s.total; document.getElementById('s-done').textContent=s.done; document.getElementById('s-undone').textContent=s.undone; document.getElementById('s-rate').textContent=s.rate+'%'; document.getElementById('prog-fg').style.width=s.rate+'%'; ['all','done','pending'].forEach(k=>document.getElementById('mc-'+k).classList.toggle('active',activeCard===k)); }
+function rateCls(p){ if(p>=80)return 'green'; if(p>=40)return 'amber'; return 'blue'; }
+function renderOverview(){ const dm=calcDeptStats(); const s=calcStats(); const rows=[
+  {key:'total',label:'개선 의견수',value:d=>dm[d].total,sum:s.total,cls:'blue'},
+  {key:'done',label:'반영 건수',value:d=>dm[d].done,sum:s.done,cls:'green'},
+  {key:'pending',label:'미반영 건수',value:d=>dm[d].total-dm[d].done,sum:s.undone,cls:'amber'},
+  {key:'rate',label:'반영률',value:d=>dm[d].total?Math.round(dm[d].done/dm[d].total*100)+'%':'-',sum:s.rate+'%',cls:null},
+];
+  document.getElementById('ov-body').innerHTML = rows.map(row=>{
+    const deptCells = DEPTS.map(d=>{ const clickable=row.key!=='rate'?' clickable':''; const active=(activeOvCell && activeOvCell.dept===d && activeOvCell.key===row.key)?' active':''; return `<td class="${clickable}${active}" ${row.key!=='rate'?`onclick="ovCellClick('${d}','${row.key}')"`:''}>${row.key==='rate'?`<span class="${rateCls(dm[d].total?Math.round(dm[d].done/dm[d].total*100):0)}">${row.value(d)}</span>`:`<span class="${row.cls}">${row.value(d)}</span>`}</td>`; }).join('');
+    const sumActive=(activeOvCell && activeOvCell.dept==='__sum__' && activeOvCell.key===row.key)?' active':'';
+    return `<tr><td class="row-label">${row.label}</td>${deptCells}<td class="${row.key!=='rate'?'clickable':''}${sumActive}" ${row.key!=='rate'?`onclick="ovCellClick('__sum__','${row.key}')"`:''}>${row.key==='rate'?`<span class="${rateCls(s.rate)}">${row.sum}</span>`:`<span class="${row.cls}">${row.sum}</span>`}</td></tr>`;
+  }).join('');
+}
+
+function filteredRows(){
+  return state.filter(r=> (curDept==='all'||r.dept===curDept) && (curStatus==='all'||(curStatus==='done'?r.done:!r.done)) && (curQuarter==='all'||r.quarter===curQuarter))
+    .sort((a,b)=> deptRank(a.dept)-deptRank(b.dept) || quarterRank(a.quarter)-quarterRank(b.quarter) || a.seqNo-b.seqNo);
+}
+
+function renderDetail(){
+  const rows = filteredRows();
+  document.getElementById('detail-sub').textContent = `— ${curDept==='all'?'전체':curDept+' 부문'} · ${curStatus==='done'?'완료':curStatus==='pending'?'미완료':'전체'} · ${curQuarter==='all'?'전체기한':curQuarter} (${rows.length}건)`;
+  const tbody = document.getElementById('dt-body');
+  if(!rows.length){ tbody.innerHTML = `<tr><td colspan="9" class="small">조건에 맞는 항목이 없습니다.</td></tr>`; return; }
+  tbody.innerHTML = rows.map((r,idx)=>{
+    const progressDone = r.progressDoneCount || 0;
+    const progressWritten = r.progressWrittenCount || 0;
+    const progressRate = progressWritten > 0 ? Math.min(100, Math.round((progressDone / progressWritten) * 100)) : 0;
+    return `<tr class="${r.done?'done-row':''}">
+      <td>${idx+1}</td>
+      <td><span class="dept d-${r.dept}">${r.dept}</span></td>
+      <td class="left">${escapeHtml(r.opinion)}</td>
+      <td class="small">${escapeHtml(r.related)}</td>
+      <td><select onchange="changeQuarter('${r.id}',this.value)">${QUARTERS.map(q=>`<option value="${q}" ${r.quarter===q?'selected':''}>${q}</option>`).join('')}</select></td>
+      <td><div class="progress-summary"><span class="progress-chip">완료 ${progressDone}건</span><span class="progress-meta">업무입력 ${progressWritten}건</span><button class="file-btn" onclick="openProgressEditor('${r.id}')">세부보기/입력</button></div></td>
+      <td><span class="progress-rate">${progressRate}%</span></td>
+      <td><div style="display:flex;flex-direction:column;align-items:center;gap:4px"><input type="checkbox" ${r.done?'checked':''} onchange="toggleDone('${r.id}',this.checked)"><span class="badge ${r.done?'done':'pending'}">${r.done?'완료':'미완료'}</span></div></td>
+      <td class="small">${escapeHtml(r.category)}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderAll(){ renderSummary(); renderOverview(); renderDetail(); syncButtons(); }
+function syncButtons(){
+  DEPTS.forEach(d=>document.getElementById('fb-'+d).className='fb'+(curDept===d?' active-main':''));
+  document.getElementById('fb-all').className='fb'+(curDept==='all'?' active-main':'');
+  ['all','done','pending'].forEach(s=>document.getElementById('fsb-'+s).className='fb'+(curStatus===s?' active-sub':''));
+  document.getElementById('fqb-all').className='fb'+(curQuarter==='all'?' active-amber':'');
+  FILTER_QUARTERS.forEach(q=>document.getElementById('fqb-'+q).className='fb'+(curQuarter===q?' active-amber':''));
+}
+function clickCard(mode){ activeCard=mode; activeOvCell=null; curDept='all'; curQuarter='all'; curStatus = mode==='done'?'done':mode==='pending'?'pending':'all'; renderAll(); }
+function clickDept(dept){ activeCard='all'; activeOvCell=null; curDept=curDept===dept?'all':dept; curStatus='all'; curQuarter='all'; renderAll(); }
+function ovCellClick(dept,key){ activeCard=null; activeOvCell={dept,key}; curDept=dept==='__sum__'?'all':dept; curStatus= key==='done'?'done':key==='pending'?'pending':'all'; curQuarter='all'; renderAll(); }
+function fDept(v){ activeCard=null; activeOvCell=null; curDept=v; renderAll(); }
+function fStatus(v){ activeCard=null; activeOvCell=null; curStatus=v; renderAll(); }
+function fQuarter(v){ activeCard=null; activeOvCell=null; curQuarter=v; renderAll(); }
+
+async function authedJson(url, options={}){
+  const password = await requestPassword();
+  if(!password) return null;
+  const headers = getAuthHeaders(password, {'Content-Type':'application/json', ...(options.headers||{})});
+  const res = await fetch(url, {...options, headers});
+  const data = await res.json().catch(()=>({ok:false,message:'처리 중 오류가 발생했습니다.'}));
+  if(!res.ok || data.ok===false){ alert(data.message || '처리 중 오류가 발생했습니다.'); return null; }
+  return data;
+}
+async function changeQuarter(id, value){ const data = await authedJson('/api/update_row',{method:'POST', body:JSON.stringify({id, quarter:value})}); if(data){ await fetchState(true); } }
+async function toggleDone(id, checked){ const data = await authedJson('/api/update_row',{method:'POST', body:JSON.stringify({id, done:checked})}); if(data){ await fetchState(true); } else { await fetchState(false); } }
+async function deleteFile(id){ const data = await authedJson('/api/file/'+id,{method:'DELETE'}); if(data){ await fetchState(true); } }
+async function attachFile(id, input){ if(!input.files || !input.files[0]) return; const password = await requestPassword(); if(!password){ input.value=''; return; } const fd = new FormData(); fd.append('file', input.files[0]); const res = await fetch('/api/upload/'+id,{method:'POST', headers:getAuthHeaders(password), body:fd}); const data = await res.json().catch(()=>({ok:false,message:'업로드 실패'})); if(!res.ok || data.ok===false){ alert(data.message || '업로드 실패'); input.value=''; return; } await fetchState(true); input.value=''; }
+async function resetAll(){ if(!confirm('전체 데이터를 초기화하시겠습니까?')) return; const data = await authedJson('/api/reset',{method:'POST', body:'{}'}); if(data){ await fetchState(true); } }
+
+const progressBackdrop = document.getElementById('progress-backdrop');
+document.getElementById('progress-cancel').addEventListener('click', closeProgressEditor);
+progressBackdrop.addEventListener('click',(e)=>{ if(e.target===progressBackdrop) closeProgressEditor(); });
+function openProgressEditor(rowId){
+  const row = state.find(r=>r.id===rowId); if(!row) return;
+  progressRowId = rowId;
+  document.getElementById('progress-title').textContent = `[${row.dept}] ${row.opinion}`;
+  document.getElementById('progress-grid').innerHTML = MONTHS.map(month=>{
+    const p = row.progress?.[month] || {text:'', done:false};
+    return `<div class="month-card"><div class="month-title">${month}</div><textarea data-month="${month}" placeholder="업무내용 입력">${escapeHtml(p.text)}</textarea><label class="month-check"><input type="checkbox" data-check-month="${month}" ${p.done?'checked':''}> 완료체크</label></div>`;
+  }).join('');
+  progressBackdrop.classList.add('show');
+  progressEditorOpen = true;
+}
+function closeProgressEditor(){ progressBackdrop.classList.remove('show'); progressRowId=null; progressEditorOpen = false; isSavingProgress = false; document.getElementById('progress-save').disabled = false; }
+document.getElementById('progress-save').addEventListener('click', async ()=>{
+  if(!progressRowId || isSavingProgress) return;
+  const progress = {};
+  MONTHS.forEach(month=>{
+    const textEl = document.querySelector(`textarea[data-month="${month}"]`);
+    const checkEl = document.querySelector(`input[data-check-month="${month}"]`);
+    progress[month] = {text: textEl ? textEl.value : '', done: !!(checkEl && checkEl.checked)};
+  });
+  isSavingProgress = true;
+  document.getElementById('progress-save').disabled = true;
+  setSaveStatus('진행상황 저장 중...');
+  const data = await authedJson('/api/progress/'+progressRowId,{method:'POST', body:JSON.stringify({progress})});
+  if(data && data.row){
+    state = state.map(r => r.id === data.row.id ? data.row : r);
+    renderAll();
+    closeProgressEditor();
+    setSaveStatus('진행상황 저장 완료 · ' + new Date().toLocaleTimeString('ko-KR'));
+    await fetchState(true);
+  } else {
+    isSavingProgress = false;
+    document.getElementById('progress-save').disabled = false;
+    setSaveStatus('진행상황 저장 실패');
+  }
+});
+
+fetchState(true);
+</script>
+</body>
+</html>
